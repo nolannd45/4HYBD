@@ -79,6 +79,7 @@ const Amis: React.FC = () => {
                 clearInterval(progressInterval);
                 await MessageService.markMediaAsSeen(firstUnseen._id);
                 setMediaToShow(null);
+                console.log(mediaToShow)
                 setMediaQueue(queue => queue.slice(1)); // Remove the first media from the queue
                 setProgress(0);
             }, duration);
@@ -86,6 +87,7 @@ const Amis: React.FC = () => {
             return () => {
                 clearInterval(progressInterval);
                 clearTimeout(timeout);
+                setMediaQueue([])
             };
         }
     }, [mediaQueue]);
@@ -150,9 +152,21 @@ const Amis: React.FC = () => {
                 ) : (
                     <IonList>
                         {friends.map((friend, index) => (
-                            <IonItem key={index} button onClick={() => handleFriendClick(friend._id)} className={mediaStatus[friend._id] ? 'new-media' : ''}>
+                            <IonItem
+                                key={index}
+                                button
+                                onClick={() => handleFriendClick(friend._id)}
+                                className={mediaStatus[friend._id] ? 'new-media' : ''}
+                            >
+                                
                                 <IonLabel>{friend.pseudo}</IonLabel>
-                                <IonButton slot="end" onClick={(e) => { e.stopPropagation(); handlePhotoClick(friend._id); }}>
+                                <IonButton
+                                    slot="end"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhotoClick(friend._id);
+                                    }}
+                                >
                                     <IonIcon icon={cameraOutline} />
                                 </IonButton>
                             </IonItem>

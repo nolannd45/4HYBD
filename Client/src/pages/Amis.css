@@ -1,7 +1,9 @@
 /* Amis.css */
 .new-media {
-    background-color: orange;
+    background-color: #ffeb3b; /* Couleur jaune claire pour les médias non vus */
+    color: #ffcc00;
 }
+
 
 .media-overlay {
     position: fixed;
