@@ -1,0 +1,50 @@
+.chat-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.my-message {
+    align-self: flex-end;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.friend-message {
+    align-self: flex-start;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.message-bubble {
+    padding: 10px;
+    border-radius: 20px;
+    margin: 5px;
+    display: inline-block;
+}
+
+.my-message .message-bubble {
+    width: auto;
+    background-color: #dcf8c6;
+    color: #000;
+}
+
+.friend-message .message-bubble {
+    background-color: #ffffff;
+    color: #000;
+    border: 1px solid #ddd;
+}
+
+.ion-footer {
+    background-color: #f8f8f8; /* Background color for footer */
+    padding: 10px; /* Padding for footer */
+}
+
+.ion-input {
+    background-color: #fff; /* Background color for input */
+    border-radius: 20px; /* Rounded corners for input */
+    padding: 10px; /* Padding for input */
+    margin-right: 10px; /* Margin right for spacing */
+}

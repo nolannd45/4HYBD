@@ -1,0 +1,7 @@
+Client/package-lock.json
+Client/node_modules
+
+Backend/node_modules
+Backend/package-lock.json
+
+.idea
