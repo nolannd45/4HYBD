@@ -8,6 +8,7 @@ import { Redirect, Route } from "react-router-dom";
 import Informations from "./Informations";
 import Messages from "./Messages";
 import Chat from "./Messagerie";
+import StoryPage from "./StoryPage";
 
 const Tabs: React.FC = () => {
     return (
@@ -22,6 +23,7 @@ const Tabs: React.FC = () => {
                 <Route exact path="/app/informations" component={Informations} />
                 <Route exact path="/app/messages/:id" component={Messages} />
                 <Route exact path="/app/chat/:userId/:friendId" component={Chat} />
+                <Route path="/app/story" component={StoryPage} exact={true} />
             </IonRouterOutlet>
             <IonTabBar slot="bottom">
                 <IonTabButton tab="friends" href="/app/friends">

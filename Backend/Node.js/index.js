@@ -20,6 +20,7 @@ import updateMedia from "./controlers/media/updateMedia.js";
 import delMedia from "./controlers/media/delMedia.js";
 import { markMediaAsSeen } from "./controlers/media/createMedia.js";
 import { getMediaStatus } from "./controlers/media/createMedia.js";
+import { readStory } from "./controlers/media/readMedia.js";
 
 import filesPayloadExists from "./middleware/filesPayloadExists.js";
 import fileExtLimiter from "./middleware/fileExtLimiter.js";
@@ -53,6 +54,7 @@ app.listen(3000, () => {
 });
 
 app.get("/media/read", readMedia);
+app.get("/media/readStory", readStory);
 app.get("/media/read/:id", readMediaById);
 app.post("/media/create", [webtoken, fileUpload({createParentPath: true}), filesPayloadExists, fileExtLimiter(['.mkv', '.mp4', '.png', '.jpg']), fileSizeLimiter], createMedia);
 app.put("/media/update/:id", webtoken, updateMedia);

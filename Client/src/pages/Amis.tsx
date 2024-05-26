@@ -63,7 +63,7 @@ const Amis: React.FC = () => {
             setMediaToShow(firstUnseen.imageUrl);
             setProgress(0);
             const startTime = Date.now();
-            const duration = 10000; // 10 secondes
+            const duration = 2000; // 10 secondes
 
             const progressInterval = setInterval(() => {
                 const elapsedTime = Date.now() - startTime;

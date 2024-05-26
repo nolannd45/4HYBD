@@ -69,7 +69,7 @@ async function createMedia(req, res) {
         res.end(JSON.stringify({ error: 'Erreur serveur ' }));
       }
       
-      await storeMetadata(blobName, file["image"].mimetype, blobClient.url,receiver, sender.id,  story, vu )
+      await storeMetadata(blobName, file["image"].mimetype, blobClient.url,receiver, sender.id,  JSON.parse(story), vu )
 
       } 
 

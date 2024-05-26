@@ -11,6 +11,16 @@ import Media from "../../models/media.js";
       res.sendStatus(500);
     }
   }
+
+  export async function readStory(req, res) {
+    try {
+        const medias = await Media.find({ story: true });
+        res.status(200).send(medias);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
   
   export async function readMediaById (req, res)  {
     try 
