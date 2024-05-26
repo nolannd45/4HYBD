@@ -7,6 +7,8 @@ const MediaSchema = new Schema(
     receiver: String,
     sender: String,
     story: Boolean,
+    latitude: Number,
+    longitude: Number,
     vu: { type: Boolean, default: false }
   },
   { timestamps: true }

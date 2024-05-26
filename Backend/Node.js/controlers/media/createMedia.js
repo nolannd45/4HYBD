@@ -45,7 +45,7 @@ async function createMedia(req, res) {
 
   const file = req.files
   const sender = req.user
-  const { receiver, story } = req.body
+  const { receiver, story, latitude, longitude } = req.body
   let vu = false
   
   const blobName = req.files["image"].name
@@ -69,13 +69,13 @@ async function createMedia(req, res) {
         res.end(JSON.stringify({ error: 'Erreur serveur ' }));
       }
       
-      await storeMetadata(blobName, file["image"].mimetype, blobClient.url,receiver, sender.id,  JSON.parse(story), vu )
+      await storeMetadata(blobName, file["image"].mimetype, blobClient.url,receiver, sender.id,  JSON.parse(story), vu, latitude, longitude)
 
       } 
 
-    async function storeMetadata(fileName, fileType, imageUrl, receiver,sender, story, vu) {
+    async function storeMetadata(fileName, fileType, imageUrl, receiver,sender, story, vu, latitude, longitude) {
       const collection = client.db("test").collection('media');
-      await collection.insertOne({ fileName, fileType, imageUrl,receiver,sender, story, vu });
+      await collection.insertOne({ fileName, fileType, imageUrl,receiver,sender, story, vu, latitude, longitude });
   }
 
 

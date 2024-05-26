@@ -8,6 +8,8 @@ type Story = {
     _id: string;
     imageUrl: string;
     user: string;
+    latitude: number;
+    longitude: number;
     // Ajoutez d'autres champs si nécessaire
 };
 
@@ -18,7 +20,9 @@ const StoryPage: React.FC = () => {
     const [mediaToShow, setMediaToShow] = useState<string | null>(null);
     const [progress, setProgress] = useState(0);
     const [mediaQueue, setMediaQueue] = useState<Story[]>([]);
+    const [userPosition, setUserPosition] = useState<{ latitude: number, longitude: number } | null>(null);
     const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
+    const MAX_DISTANCE = 10; // Distance maximale en kilomètres
 
     useEffect(() => {
         const fetchStories = async () => {
@@ -67,30 +71,79 @@ const StoryPage: React.FC = () => {
         }
     }, [mediaQueue]);
 
-    const handleStoryPhotoClick = async () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = async (event: any) => {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('user', userId);
-                formData.append('story', 'true'); // Indiquer que c'est une story
-
-                try {
-                    await MessageService.sendMedia2(formData);
-                    alert('Story posted successfully!');
-                    // Refresh the stories after posting
-                    const updatedStories = await MessageService.getStories();
-                    setStories(updatedStories);
-                } catch (error) {
-                    console.error("Failed to post story:", error);
+    useEffect(() => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserPosition({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    console.error('Error getting user position:', error);
                 }
-            }
-        };
-        input.click();
+            );
+        }
+    }, []);
+
+    const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const toRad = (x: number) => (x * Math.PI) / 180;
+
+        const R = 6371; // Earth radius in km
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
+
+    const filteredStories = stories.filter((story) => {
+        if (userPosition) {
+            const distance = haversineDistance(
+                userPosition.latitude,
+                userPosition.longitude,
+                story.latitude,
+                story.longitude
+            );
+            return distance <= MAX_DISTANCE;
+        }
+        return false;
+    });
+
+    const handleStoryPhotoClick = async () => {
+        if (userPosition) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event: any) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('user', userId);
+                    formData.append('story', 'true'); // Indiquer que c'est une story
+                    formData.append('latitude', userPosition.latitude.toString());
+                    formData.append('longitude', userPosition.longitude.toString());
+
+                    try {
+                        await MessageService.sendMedia2(formData);
+                        alert('Story posted successfully!');
+                        // Refresh the stories after posting
+                        const updatedStories = await MessageService.getStories();
+                        setStories(updatedStories);
+                    } catch (error) {
+                        console.error("Failed to post story:", error);
+                    }
+                }
+            };
+            input.click();
+        } else {
+            alert('Unable to get your location. Please try again.');
+        }
     };
 
     const handleImageClick = (story: Story) => {
@@ -119,7 +172,7 @@ const StoryPage: React.FC = () => {
                     <p>Loading...</p>
                 ) : (
                     <div className="story-grid">
-                        {stories.map((story, index) => (
+                        {filteredStories.map((story, index) => (
                             <div className="story-grid-item" key={index} onClick={() => handleImageClick(story)}>
                                 <IonImg src={story.imageUrl} alt={`Story from ${story.user}`} />
                             </div>
