@@ -9,7 +9,7 @@ import './Story.css';
 type Story = {
     _id: string;
     imageUrl: string;
-    user: string;
+    sender: string;
     latitude: number;
     longitude: number;
 };
@@ -21,8 +21,8 @@ const StoryPage: React.FC = () => {
     const [mediaToShow, setMediaToShow] = useState<string | null>(null);
     const [progress, setProgress] = useState(0);
     const [mediaQueue, setMediaQueue] = useState<Story[]>([]);
+    const [currentStoryIndex, setCurrentStoryIndex] = useState<number>(0);
     const [userPosition, setUserPosition] = useState<{ latitude: number, longitude: number } | null>(null);
-    const [file, setFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
     const MAX_DISTANCE = 10; // Distance maximale en kilomètres
@@ -44,8 +44,8 @@ const StoryPage: React.FC = () => {
 
     useEffect(() => {
         if (mediaQueue.length > 0) {
-            const firstStory = mediaQueue[0];
-            setMediaToShow(firstStory.imageUrl);
+            const currentStory = mediaQueue[currentStoryIndex];
+            setMediaToShow(currentStory.imageUrl);
             setProgress(0);
             const startTime = Date.now();
             const duration = 10000; // 10 secondes
@@ -62,9 +62,13 @@ const StoryPage: React.FC = () => {
 
             const timeout = setTimeout(async () => {
                 clearInterval(progressInterval);
-                setMediaToShow(null);
-                setMediaQueue(queue => queue.slice(1)); // Remove the first media from the queue
                 setProgress(0);
+                if (currentStoryIndex < mediaQueue.length - 1) {
+                    setCurrentStoryIndex(currentStoryIndex + 1);
+                } else {
+                    setMediaToShow(null);
+                    setMediaQueue([]);
+                }
             }, duration);
 
             return () => {
@@ -72,7 +76,7 @@ const StoryPage: React.FC = () => {
                 clearTimeout(timeout);
             };
         }
-    }, [mediaQueue]);
+    }, [mediaQueue, currentStoryIndex]);
 
     useEffect(() => {
         const requestPermissionsAndPosition = async () => {
@@ -133,6 +137,18 @@ const StoryPage: React.FC = () => {
         return false;
     });
 
+    // Grouper les stories par utilisateur
+    const storiesByUser = filteredStories.reduce((acc, story) => {
+        if (!acc[story.sender]) {
+            acc[story.sender] = [];
+        }
+        acc[story.sender].push(story);
+        return acc;
+    }, {} as { [key: string]: Story[] });
+
+    console.log("filteredStories: ", filteredStories);  // Log to debug
+    console.log("storiesByUser: ", storiesByUser);      // Log to debug
+
     const handleStoryPhotoClick = async () => {
         if (userPosition) {
             // Ouvrir le sélecteur de fichiers sur le web
@@ -164,13 +180,24 @@ const StoryPage: React.FC = () => {
         }
     };
 
-    const handleImageClick = (story: Story) => {
-        setMediaQueue([story]);
+    const handleImageClick = (user: string) => {
+        const userStories = storiesByUser[user];
+        setMediaQueue(userStories);
+        setCurrentStoryIndex(0); // Reset to the first story of the user
     };
 
     const closeMedia = () => {
         setMediaToShow(null);
         setMediaQueue([]);
+        setCurrentStoryIndex(0);
+    };
+
+    const handleNextStory = () => {
+        if (currentStoryIndex < mediaQueue.length - 1) {
+            setCurrentStoryIndex(currentStoryIndex + 1);
+        } else {
+            closeMedia();
+        }
     };
 
     return (
@@ -197,16 +224,16 @@ const StoryPage: React.FC = () => {
                     <p>Loading...</p>
                 ) : (
                     <div className="story-grid">
-                        {filteredStories.map((story, index) => (
-                            <div className="story-grid-item" key={index} onClick={() => handleImageClick(story)}>
-                                <IonImg src={story.imageUrl} alt={`Story from ${story.user}`} />
+                        {Object.keys(storiesByUser).map((user, index) => (
+                            <div className="story-grid-item" key={index} onClick={() => handleImageClick(user)}>
+                                <IonImg src={storiesByUser[user][0].imageUrl} alt={`Story from ${user}`} />
                             </div>
                         ))}
                     </div>
                 )}
                 {error && <p>{error}</p>}
                 {mediaToShow && (
-                    <div className="media-overlay" onClick={closeMedia}>
+                    <div className="media-overlay" onClick={handleNextStory}>
                         <IonProgressBar value={progress}></IonProgressBar>
                         <img src={mediaToShow} alt="Enlarged story" onError={() => console.error("Failed to load image: " + mediaToShow)} />
                     </div>
