@@ -10,8 +10,8 @@ import cors from 'cors';
 
 import createUser from "./controlers/user/createUser.js";
 import deleteUser from "./controlers/user/deleteUser.js";
-import updateUser from "./controlers/user/updateUser.js";
-import { readUser } from "./controlers/user/readUser.js";
+import updateUser, { addFriend } from "./controlers/user/updateUser.js";
+import { readUser, readUserByPseudo } from "./controlers/user/readUser.js";
 import { readUserById } from "./controlers/user/readUser.js";
 
 import { readMedia, readMediaById } from "./controlers/media/readMedia.js";
@@ -67,6 +67,8 @@ app.delete("/user/delete/:id", webtoken, deleteUser);
 app.put("/user/update/:id", webtoken, updateUser);
 app.get("/user/read", readUser);
 app.get("/user/read/:id", readUserById);
+app.get("/user/search", readUserByPseudo);
+app.post("/user/addFriend", webtoken, addFriend);
 
 app.post("/commentaire/create", createCom);
 app.delete("/commentaire/delete/:id", webtoken, deleteUser);

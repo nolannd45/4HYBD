@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonButton, IonIcon, IonProgressBar } from '@ionic/react';
-import { cameraOutline } from 'ionicons/icons';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonButton, IonIcon, IonProgressBar, IonSearchbar } from '@ionic/react';
+import { cameraOutline, addOutline } from 'ionicons/icons';
 import FriendService from '../services/FriendService';
 import MessageService from '../services/MessageService';
 import { useHistory } from 'react-router-dom';
@@ -24,7 +24,8 @@ const Amis: React.FC = () => {
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
-    const [test, setTest] = useState<string>('');
+    const [searchResults, setSearchResults] = useState<Friend[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const [mediaStatus, setMediaStatus] = useState<{ [key: string]: boolean }>({});
     const [mediaToShow, setMediaToShow] = useState<string | null>(null);
     const [mediaQueue, setMediaQueue] = useState<Media[]>([]);
@@ -79,7 +80,6 @@ const Amis: React.FC = () => {
                 clearInterval(progressInterval);
                 await MessageService.markMediaAsSeen(firstUnseen._id);
                 setMediaToShow(null);
-                console.log(mediaToShow)
                 setMediaQueue(queue => queue.slice(1)); // Remove the first media from the queue
                 setProgress(0);
             }, duration);
@@ -87,7 +87,6 @@ const Amis: React.FC = () => {
             return () => {
                 clearInterval(progressInterval);
                 clearTimeout(timeout);
-                setMediaQueue([])
             };
         }
     }, [mediaQueue]);
@@ -110,7 +109,7 @@ const Amis: React.FC = () => {
                 formData.append('story', 'false'); // Ajoutez d'autres champs si nécessaire
 
                 try {
-                    await MessageService.sendMedia(formData, friendId);
+                    await MessageService.sendMedia2(formData);
                     alert('Photo sent successfully!');
                 } catch (error) {
                     console.error("Failed to send photo:", error);
@@ -134,12 +133,43 @@ const Amis: React.FC = () => {
         setMediaQueue([]);
     };
 
+    const handleSearch = async (query: string) => {
+        setSearchQuery(query);
+        if (query.length > 2) {
+            try {
+                const results = await FriendService.searchUsers(query);
+                setSearchResults(results);
+            } catch (error) {
+                console.error("Failed to search users:", error);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
+
+    const addFriend = async (friendId: string) => {
+        try {
+            console.log(friendId);
+            await FriendService.addFriend(friendId);
+            const newFriend = await FriendService.getFriend(friendId);
+            setFriends(prevFriends => [...prevFriends, newFriend]);
+            alert('Friend added successfully!');
+        } catch (error) {
+            console.error("Failed to add friend:", error);
+        }
+    };
+
     return (
         <IonPage>
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>Amis</IonTitle>
                 </IonToolbar>
+                <IonSearchbar 
+                    value={searchQuery} 
+                    onIonInput={(e: any) => handleSearch(e.target.value)} 
+                    placeholder="Search for a user"
+                />
             </IonHeader>
             <IonContent fullscreen>
                 <IonHeader collapse="condense">
@@ -150,28 +180,42 @@ const Amis: React.FC = () => {
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
-                    <IonList>
-                        {friends.map((friend, index) => (
-                            <IonItem
-                                key={index}
-                                button
-                                onClick={() => handleFriendClick(friend._id)}
-                                className={mediaStatus[friend._id] ? 'new-media' : ''}
-                            >
-                                
-                                <IonLabel>{friend.pseudo}</IonLabel>
-                                <IonButton
-                                    slot="end"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handlePhotoClick(friend._id);
-                                    }}
+                    <>
+                        <IonList>
+                            {friends.map((friend, index) => (
+                                <IonItem
+                                    key={index}
+                                    button
+                                    onClick={() => handleFriendClick(friend._id)}
+                                    className={mediaStatus[friend._id] ? 'new-media' : ''}
                                 >
-                                    <IonIcon icon={cameraOutline} />
-                                </IonButton>
-                            </IonItem>
-                        ))}
-                    </IonList>
+                                    <IonLabel>{friend.pseudo}</IonLabel>
+                                    <IonButton
+                                        slot="end"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePhotoClick(friend._id);
+                                        }}
+                                    >
+                                        <IonIcon icon={cameraOutline} />
+                                    </IonButton>
+                                </IonItem>
+                            ))}
+                        </IonList>
+                        <IonList>
+                            {searchResults.map((user, index) => (
+                                <IonItem key={index}>
+                                    <IonLabel>{user.pseudo}</IonLabel>
+                                    <IonButton
+                                        slot="end"
+                                        onClick={() => addFriend(user._id)}
+                                    >
+                                        <IonIcon icon={addOutline} />
+                                    </IonButton>
+                                </IonItem>
+                            ))}
+                        </IonList>
+                    </>
                 )}
                 {error && <p>{error}</p>}
                 {mediaToShow && (

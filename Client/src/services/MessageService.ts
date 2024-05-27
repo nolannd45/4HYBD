@@ -42,10 +42,10 @@ const MessageService = {
         }
     },
 
-    sendMedia: async (mediaData: FormData, friendId : string) => {
+    sendMedia: async (mediaData: FormData) => {
         try {
             const token = localStorage.getItem('token'); // Assurez-vous que le token est bien stocké dans le localStorage
-            const response = await axios.post(url + '/media/create', {mediaData, friendId}, {
+            const response = await axios.post(url + '/media/create', {mediaData}, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`

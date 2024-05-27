@@ -1,0 +1,9 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Client",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "http",
+		"iosScheme": "http"
+	}
+}

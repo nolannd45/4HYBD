@@ -36,4 +36,5 @@ const createUser = async (req, res) => {
       res.sendStatus(500);
     }
   };
+  
   export default createUser;
