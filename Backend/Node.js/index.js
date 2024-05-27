@@ -33,6 +33,9 @@ import { readCom } from "./controlers/commentaire/readCom.js";
 import { readComById } from "./controlers/commentaire/readCom.js";
 import { getComs } from "./controlers/commentaire/readCom.js";
 
+import {getGroupeByUserId} from "./controlers/group/getGroupeByUserId.js";
+import createGroup from "./controlers/group/createGroup.js";
+
 const app = express();
 const mongodbUri = process.env.MONGODB_URI;
 
@@ -77,6 +80,10 @@ app.get("/commentaire/read/:id", readComById);
 app.get("/commentaire/get/:userId/:friendId", getComs);
 
 app.post("/login", login);
+
+
+app.get("/groups/getUsers/:userId",getGroupeByUserId);
+app.post("/groups/create",createGroup);
 
 
 

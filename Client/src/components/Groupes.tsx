@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     IonButton,
     IonIcon,
@@ -14,61 +14,66 @@ import {
 import {ellipsisHorizontal} from "ionicons/icons";
 import Messages from "../pages/Messages";
 import ActionSheetComponent from "./ActionSheetComponent";
+import GroupService from '../services/GroupService';
 
 
-const AllContacts = [
-    {
-        id: 1,
-        name: "Groupe mercredi soir",
-        time: "18h30",
-        lastMessage: "Salut les gars, vous êtes chauds pour ce soir ?",
-    },
-    {
-        id: 2,
-        name: "Groupe jeudi soir",
-        time: "18h30",
-        lastMessage: "Salut les gars, vous êtes chauds pour ce soir ?",
-    },
-    {
-        id: 3,
-        name: "Groupe vendredi soir",
-        time: "18h30",
-        lastMessage: "Salut les gars, vous êtes chauds pour ce soir ?",
-    },
-    {
-        id: 4,
-        name: "Groupe samedi soir",
-        time: "18h30",
-        lastMessage: "Salut les gars, vous êtes chauds pour ce soir ?",
-    }
-];
+type Groups = {
+    _id: string;
+    titre: string;
+    lastMessage: string;
+};
+
 
 const Groupes: React.FC = () => {
-
+    const [groups, setGroups] = useState<Groups[]>([]);
     const [isOpen, setIsOpen] = React.useState(false);
     const [title, setTitle] = React.useState("");
     const [id, setId] = React.useState(0);
+    const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
 
+    useEffect(() => {
+    const fetchGroup = async ()=>{
+        try{
+            const groupsGet = await GroupService.getGroups(userId);
+            setGroups(groupsGet);
+        }catch(err){
+            console.log("Failed get all groups");
+        } 
+    }
+    
+    // const createGroup = async()=>{
 
+    //     try{
+    //         const groupeCreate = await GroupService.createGroup("test",[userId]);
+    //     }catch(err){
+    //         console.log("failed create groupe");
+    //     }
+    // }
+    
+    
+    // createGroup();
+    fetchGroup();
+
+}, []);
 
     return (
         <>
             <IonList>
-                {AllContacts.map((contact) => (
-                    <IonItem key={contact.id} >
+                {groups.map((contact, key) => (
+                    <IonItem key={key} >
                         <IonItemSliding>
-                                <IonItem button routerLink={"/messages/" + contact.id}>
+                                <IonItem button routerLink={"/messages/" + key}>
                                     <IonLabel>
                                         <IonText color={"primary"}>
-                                            {contact.name}
+                                            {contact.titre}
                                         </IonText>
                                         <p>{contact.lastMessage}</p>
                                     </IonLabel>
                                 </IonItem>
                                 <IonItemOptions side="end" onClick={() => {
                                     setIsOpen(true)
-                                    setTitle(contact.name)
-                                    setId(contact.id)
+                                    setTitle(contact.titre)
+                                    setId(key)
                                 }}>
                                     <IonItemOption color="medium" >
                                             <IonIcon slot="icon-only" icon={ellipsisHorizontal}>Options</IonIcon>
