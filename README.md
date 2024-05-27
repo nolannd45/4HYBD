@@ -27,6 +27,9 @@ cd Client
 ionic capacitor open android
 ```
 
+utilisateur par defaut : 
+test
+test
 
 ## Lancer les tests :
 
