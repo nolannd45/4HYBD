@@ -11,12 +11,11 @@ const Login: React.FC = () => {
     const navigation = useIonRouter();
 
     const doLogin = async () => {
-        console.log(pseudo)
         try {
             await AuthService.login(pseudo, password);
             navigation.push("/app", "root", "replace");
         } catch (error) {
-            setAlertMessage("Login failed. Please check your credentials.");
+            setAlertMessage("Login failed. Please check your credentials aaaaaaaaaaa.");
             setShowAlert(true);
         }
     };

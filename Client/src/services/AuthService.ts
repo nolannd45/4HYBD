@@ -2,14 +2,15 @@ import axios from 'axios';
 
 const AuthService = {
     login: async (pseudo: string, password: string) => {
+
         try {
-            const response = await axios.post('http://localhost:3000/login', {
+            const response = await axios.post('http://10.0.2.2:3000/login', {
                 pseudo,
                 password,
             });
             const token = await response.data.token;
             const user = await response.data.user;
-            
+
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
             return token;
@@ -20,7 +21,7 @@ const AuthService = {
 
     register: async (pseudo: string, password: string) => {
         try {
-            const response = await axios.post('http://localhost:3000/user/create', {
+            const response = await axios.post('http://10.0.2.2:3000/user/create', {
                 pseudo,
                 password,
             });

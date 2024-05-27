@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 
 const login = async (req, res) => {
+  console.log("test")
   try 
   {
     const { pseudo, password } = req.body;
@@ -37,6 +38,7 @@ const login = async (req, res) => {
       token,
       user
     });
+    
     
   } catch (error) 
   {
