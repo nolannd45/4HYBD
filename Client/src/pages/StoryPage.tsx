@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonIcon, IonProgressBar, IonImg } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
+import { isPlatform } from '@ionic/react';
 import MessageService from '../services/MessageService';
 import './Story.css';
 
@@ -22,6 +22,8 @@ const StoryPage: React.FC = () => {
     const [progress, setProgress] = useState(0);
     const [mediaQueue, setMediaQueue] = useState<Story[]>([]);
     const [userPosition, setUserPosition] = useState<{ latitude: number, longitude: number } | null>(null);
+    const [file, setFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
     const MAX_DISTANCE = 10; // Distance maximale en kilomètres
 
@@ -75,15 +77,26 @@ const StoryPage: React.FC = () => {
     useEffect(() => {
         const requestPermissionsAndPosition = async () => {
             try {
-                const permissions = await Geolocation.requestPermissions();
-                if (permissions.location === 'granted') {
-                    const position = await Geolocation.getCurrentPosition();
-                    setUserPosition({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
+                if (isPlatform('hybrid')) {
+                    const permissions = await Geolocation.requestPermissions();
+                    if (permissions.location === 'granted') {
+                        const position = await Geolocation.getCurrentPosition();
+                        setUserPosition({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        });
+                    } else {
+                        console.error('Permission to access location was denied');
+                    }
                 } else {
-                    console.error('Permission to access location was denied');
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        setUserPosition({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        });
+                    }, (error) => {
+                        console.error('Error getting user position:', error);
+                    });
                 }
             } catch (error) {
                 console.error('Error getting user position:', error);
@@ -122,25 +135,18 @@ const StoryPage: React.FC = () => {
 
     const handleStoryPhotoClick = async () => {
         if (userPosition) {
-            const permissions = await Camera.requestPermissions();
-            if (permissions.camera !== 'granted' || permissions.photos !== 'granted') {
-                alert('Permissions to access camera and photos are required.');
-                return;
-            }
+            // Ouvrir le sélecteur de fichiers sur le web
+            fileInputRef.current?.click();
+        } else {
+            alert('Unable to get your location. Please try again.');
+        }
+    };
 
-            const image = await Camera.getPhoto({
-                quality: 90,
-                allowEditing: false,
-                resultType: CameraResultType.Uri,
-                source: CameraSource.Camera
-            });
-
-            const response = await fetch(image.webPath!);
-            const blob = await response.blob();
-            const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = event.target.files?.[0];
+        if (selectedFile && userPosition) {
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', selectedFile);
             formData.append('user', userId);
             formData.append('story', 'true'); // Indiquer que c'est une story
             formData.append('latitude', userPosition.latitude.toString());
@@ -155,8 +161,6 @@ const StoryPage: React.FC = () => {
             } catch (error) {
                 console.error("Failed to post story:", error);
             }
-        } else {
-            alert('Unable to get your location. Please try again.');
         }
     };
 
@@ -178,6 +182,13 @@ const StoryPage: React.FC = () => {
                         <IonButton onClick={handleStoryPhotoClick}>
                             <IonIcon icon={addCircleOutline} />
                         </IonButton>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            accept="image/*"
+                            onChange={handleFileChange}
+                        />
                     </div>
                 </IonToolbar>
             </IonHeader>
