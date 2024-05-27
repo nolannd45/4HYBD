@@ -1,10 +1,16 @@
 import axios from 'axios';
+import { isPlatform } from '@ionic/react';
+
+if(isPlatform('hybrid')){
+    var url = "http://10.0.2.2:3000";
+}else{
+    var url = "http://localhost:3000";
+}
 
 const AuthService = {
     login: async (pseudo: string, password: string) => {
-
         try {
-            const response = await axios.post('http://10.0.2.2:3000/login', {
+            const response = await axios.post(url + '/login', {
                 pseudo,
                 password,
             });
@@ -21,7 +27,7 @@ const AuthService = {
 
     register: async (pseudo: string, password: string) => {
         try {
-            const response = await axios.post('http://10.0.2.2:3000/user/create', {
+            const response = await axios.post(url + '/user/create', {
                 pseudo,
                 password,
             });

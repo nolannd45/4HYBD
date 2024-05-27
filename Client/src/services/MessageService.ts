@@ -1,9 +1,16 @@
 import axios from 'axios';
+import { isPlatform } from '@ionic/react';
+
+if(isPlatform('hybrid')){
+    var url = "http://10.0.2.2:3000";
+}else{
+    var url = "http://localhost:3000";
+}
 
 const MessageService = {
     getMessages: async (userId : String, friendId : String) => {
         try {
-            const response = await axios.get(`http://10.0.2.2:3000/commentaire/get/${userId}/${friendId}`);
+            const response = await axios.get(url + `/commentaire/get/${userId}/${friendId}`);
             return response.data;
         } catch (error) {
             console.error("Error fetching messages:", error);
@@ -13,7 +20,7 @@ const MessageService = {
 
     getStories: async () => {
         try {
-            const response = await axios.get(`http://10.0.2.2:3000/media/readStory`);
+            const response = await axios.get(url + `/media/readStory`);
             return response.data;
         } catch (error) {
             console.error("Error fetching messages:", error);
@@ -23,7 +30,7 @@ const MessageService = {
 
     sendMessage: async (sender: string, receiver: string, content: string) => {
         try {
-            const response = await axios.post('http://10.0.2.2:3000/commentaire/create', {
+            const response = await axios.post(url + '/commentaire/create', {
                 sender,
                 receiver,
                 content
@@ -38,7 +45,7 @@ const MessageService = {
     sendMedia: async (mediaData: FormData, friendId : string) => {
         try {
             const token = localStorage.getItem('token'); // Assurez-vous que le token est bien stocké dans le localStorage
-            const response = await axios.post('http://10.0.2.2:3000/media/create', {mediaData, friendId}, {
+            const response = await axios.post(url + '/media/create', {mediaData, friendId}, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
@@ -54,7 +61,7 @@ const MessageService = {
     sendMedia2: async (mediaData: FormData) => {
         try {
             const token = localStorage.getItem('token'); // Assurez-vous que le token est bien stocké dans le localStorage
-            const response = await axios.post('http://10.0.2.2:3000/media/create', mediaData, {
+            const response = await axios.post(url + '/media/create', mediaData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
@@ -70,7 +77,7 @@ const MessageService = {
     getMediaStatus: async (userId: string, friendId: string) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://10.0.2.2:3000/media/status/${userId}/${friendId}`, {
+            const response = await axios.get(url + `/media/status/${userId}/${friendId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -84,7 +91,7 @@ const MessageService = {
     markMediaAsSeen: async (mediaId: string) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`http://10.0.2.2:3000/media/markasread/${mediaId}`, null, {
+            const response = await axios.post(url + `/media/markasread/${mediaId}`, null, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
