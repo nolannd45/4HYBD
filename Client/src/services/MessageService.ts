@@ -28,6 +28,16 @@ const MessageService = {
         }
     },
 
+    getMediaByGroup: async (groupId : String) => {
+        try {
+            const response = await axios.get(url + `/media/readByGroup/${groupId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+            return [];
+        }
+    },
+
     getStories: async () => {
         try {
             const response = await axios.get(url + `/media/readStory`);

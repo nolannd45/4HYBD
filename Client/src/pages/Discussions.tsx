@@ -1,7 +1,7 @@
 import {IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar} from '@ionic/react';
 import React, { useState } from "react";
 import {createOutline} from "ionicons/icons";
-import Groupes from "../components/Groupes";
+import Groupes from "./Groupes";
 import MyForm from './MyForm';
 
 const Discussions: React.FC = () => {

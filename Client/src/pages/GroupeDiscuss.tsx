@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonInput, IonButton, IonFooter } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonInput, IonButton, IonFooter, IonIcon } from '@ionic/react';
+import { cameraOutline } from 'ionicons/icons';
 import MessageService from '../services/MessageService';
 import { useParams } from 'react-router-dom';
 import './Chat.css'; // Assurez-vous que le fichier CSS est importé
@@ -10,19 +11,23 @@ const ChatGroup: React.FC = () => {
     const [newMessage, setNewMessage] = useState<string>('');
 
     useEffect(() => {
-        console.log("test")
-
-        const fetchMessages = async () => {
+        const fetchMessagesAndMedia = async () => {
             try {
                 const fetchedMessages = await MessageService.getGroupMessages(groupId);
-                console.log("Fetched messages:", fetchedMessages);
-                setMessages(fetchedMessages);
+                const fetchedMedia = await MessageService.getMediaByGroup(groupId);
+                console.log(fetchedMedia)
+                const allMessages = [...fetchedMessages, ...fetchedMedia];
+
+                // Sort by creation date assuming each message/media has a `createdAt` field
+                allMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                console.log(allMessages)
+                setMessages(allMessages);
             } catch (error) {
-                console.error("Failed to fetch messages:", error);
+                console.error("Failed to fetch messages and media:", error);
             }
         };
 
-        fetchMessages();
+        fetchMessagesAndMedia();
     }, [userId, groupId]);
 
     const sendMessage = async () => {
@@ -33,6 +38,24 @@ const ChatGroup: React.FC = () => {
             setNewMessage('');
         } catch (error) {
             console.error("Failed to send message:", error);
+        }
+    };
+
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('user', userId);
+            formData.append('receiver', groupId);
+            formData.append('story', 'false');
+
+            try {
+                const mediaMessage = await MessageService.sendMedia2(formData);
+                setMessages([...messages, mediaMessage]);
+            } catch (error) {
+                console.error("Failed to send image:", error);
+            }
         }
     };
 
@@ -48,7 +71,11 @@ const ChatGroup: React.FC = () => {
                     {messages.length > 0 ? messages.map((msg, index) => (
                         <IonItem key={msg._id || index} className={msg.sender === userId ? 'my-message' : 'friend-message'}>
                             <IonLabel className="message-bubble">
-                                <p><strong>{msg.sender === userId ? "Me" : "Friend"}</strong>: {msg.content}</p>
+                                {msg.content ? (
+                                    <p><strong>{msg.sender === userId ? "Me" : "Friend"}</strong>: {msg.content}</p>
+                                ) : (
+                                    <img src={msg.imageUrl} alt="sent media" />
+                                )}
                             </IonLabel>
                         </IonItem>
                     )) : (
@@ -64,6 +91,18 @@ const ChatGroup: React.FC = () => {
                         onIonChange={(e) => setNewMessage(e.detail.value!)}
                     />
                     <IonButton onClick={sendMessage}>Send</IonButton>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="fileInput"
+                        onChange={handleImageUpload}
+                    />
+                    <IonButton
+                        onClick={() => document.getElementById('fileInput')?.click()}
+                    >
+                        <IonIcon icon={cameraOutline} />
+                    </IonButton>
                 </IonItem>
             </IonFooter>
         </IonPage>

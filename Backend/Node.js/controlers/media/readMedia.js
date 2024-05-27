@@ -20,7 +20,18 @@ import Media from "../../models/media.js";
         console.log(error);
         res.sendStatus(500);
     }
-}
+  }
+  export async function readMediaByGroupId(req, res) {
+    try {
+        const { groupId } = req.params;
+        const medias = await Media.find({ receiver: groupId });
+        console.log(medias)
+        res.status(200).send(medias);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+  }
   
   export async function readMediaById (req, res)  {
     try 
