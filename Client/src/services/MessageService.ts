@@ -18,6 +18,16 @@ const MessageService = {
         }
     },
 
+    getGroupMessages: async (groupId : String) => {
+        try {
+            const response = await axios.get(url + `/commentaire/get/${groupId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+            return [];
+        }
+    },
+
     getStories: async () => {
         try {
             const response = await axios.get(url + `/media/readStory`);

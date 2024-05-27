@@ -16,7 +16,8 @@ const GroupService = {
     createGroup: async (titre: string, users: Array<String>) => {
         try {
             const response = await axios.post(`${url}/groups/create`, {
-                titre,users
+                titre,
+                users
             });
             return response.data;
         } catch (error) {

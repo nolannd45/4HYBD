@@ -6,6 +6,7 @@ import MyForm from './MyForm';
 
 const Discussions: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
 
     const handleIconClick = () => {
         console.log("test")
@@ -28,7 +29,7 @@ const Discussions: React.FC = () => {
                 </IonToolbar>
             </IonHeader>
             <IonContent fullscreen>
-                <MyForm isOpen={isModalOpen} onClose={handleCloseModal} />
+                <MyForm isOpen={isModalOpen} onClose={handleCloseModal}/>
                 <IonHeader collapse="condense">
                     <IonToolbar>
                         <IonTitle size="large">Discussions</IonTitle>

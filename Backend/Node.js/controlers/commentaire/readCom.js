@@ -37,5 +37,15 @@ import commentaire from "../../models/commentaire.js";
     } catch (error) {
         res.status(400).send(error);
     }
+}
+
+export async function getGroupComs(req, res) {
+  const { groupId } = req.params;
+  try {
+      const messages = await commentaire.find({receiver: groupId }).sort({ timestamp: 1 });
+      res.status(200).send(messages);
+  } catch (error) {
+      res.status(400).send(error);
+  }
 };
   

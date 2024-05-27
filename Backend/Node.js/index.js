@@ -35,6 +35,7 @@ import { getComs } from "./controlers/commentaire/readCom.js";
 
 import {getGroupeByUserId} from "./controlers/group/getGroupeByUserId.js";
 import createGroup from "./controlers/group/createGroup.js";
+import { getGroupComs } from "./controlers/commentaire/readCom.js";
 
 const app = express();
 const mongodbUri = process.env.MONGODB_URI;
@@ -78,6 +79,7 @@ app.delete("/commentaire/delete/:id", webtoken, deleteUser);
 app.get("/commentaire/read", readCom);
 app.get("/commentaire/read/:id", readComById);
 app.get("/commentaire/get/:userId/:friendId", getComs);
+app.get("/commentaire/get/:groupId", getGroupComs);
 
 app.post("/login", login);
 

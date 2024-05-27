@@ -9,6 +9,7 @@ import Informations from "./Informations";
 import Messages from "./Messages";
 import Chat from "./Messagerie";
 import StoryPage from "./StoryPage";
+import ChatGroup from "./GroupeDiscuss";
 
 const Tabs: React.FC = () => {
     return (
@@ -23,6 +24,7 @@ const Tabs: React.FC = () => {
                 <Route exact path="/app/informations" component={Informations} />
                 <Route exact path="/app/messages/:id" component={Messages} />
                 <Route exact path="/app/chat/:userId/:friendId" component={Chat} />
+                <Route exact path="/app/groupes/:userId/:groupId" component={ChatGroup} />
                 <Route path="/app/story" component={StoryPage} exact={true} />
             </IonRouterOutlet>
             <IonTabBar slot="bottom">

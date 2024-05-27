@@ -62,7 +62,7 @@ const Groupes: React.FC = () => {
                 {groups.map((contact, key) => (
                     <IonItem key={key} >
                         <IonItemSliding>
-                                <IonItem button routerLink={"/messages/" + key}>
+                                <IonItem button routerLink={"groupes/" + userId + "/" + contact._id}>
                                     <IonLabel>
                                         <IonText color={"primary"}>
                                             {contact.titre}
