@@ -6,6 +6,8 @@ Bienvenue dans projet 4WEBD !
 
 Après avoir ouvert le projet, il vous faudra vous déplacer dans le répertoire parent.
 
+A noté que le .env sont intentionnellement laissé pour une facilité de rendu.
+
 ```bash
 cd Backend
 npm i
